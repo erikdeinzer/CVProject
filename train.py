@@ -12,6 +12,7 @@ from data import *
 dataset_builder = Builder(DATASETS)
 model_builder = Builder(MODELS)
 eval_builder = Builder(EVALUATIONS)
+transforms_builder = Builder(TRANSFORMS)
 
 
 def main(dataset_cfg: dict, 

@@ -30,6 +30,7 @@ class Registry():
 MODELS = Registry('MODELS')
 DATASETS = Registry('DATASETS')
 EVALUATIONS = Registry('EVALUATIONS')
+TRANSFORMS = Registry('TRANSFORMS')
 
 class Builder():
     def __init__(self, registry, **kwargs):

@@ -15,14 +15,13 @@ eval_cfg = dict(
     type='EntropyLoss',
 )
 
-train_pipeline = dict(
-    [
+transforms = [
         dict(type='ToTensor'),
         dict(type='Augment1', param1=0.5, param2=0.5),
         dict(type='Augment2', param1=0.5, param2=0.5),
         dict(type='PackInputs')
     ]
-)
+
 
 
 train_dataloader = dict(
@@ -37,7 +36,7 @@ train_dataloader = dict(
         type=dataset_type,
         data_root=data_root,
         ann_file='train.txt',
-        pipeline=train_pipeline,
+        pipeline=transforms,
         test_mode=False,
     )
 )
