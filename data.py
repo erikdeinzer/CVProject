@@ -38,7 +38,7 @@ TRANSFORMS.register(T.RandAugment, type='RandAugment')
 
 @DATASETS.register(type='CCPD')
 class CCPD(Dataset):
-    def __init__(self, data_root, split='train', transforms=None):
+    def __init__(self, data_root, split='train', pipeline=None):
         """
         Args:
             data_root (str): Root directory containing CCPD image data.
@@ -47,7 +47,7 @@ class CCPD(Dataset):
         """
         self.data_root = os.path.join(data_root, split)
         self.image_files = [f for f in os.listdir(self.data_root) if f.endswith('.jpg') or f.endswith('.png')]
-        self.transforms = self._build_transforms(transforms)
+        self.transforms = self._build_transforms(pipeline)
 
     def _build_transforms(self, transform_cfgs):
         transforms_builder = Builder(TRANSFORMS)
@@ -105,3 +105,22 @@ class RepeatDataset(Dataset):
 
     
 
+def build_dataloader_from_cfg(cfg):
+    """
+    Builds a PyTorch DataLoader from a config dictionary.
+
+    Args:
+        cfg (dict): Config with `dataset` and DataLoader options.
+
+    Returns:
+        DataLoader
+    """
+    cfg = cfg.copy()
+    dataset_cfg = cfg['dataset']
+    dataset_builder = Builder(DATASETS)
+    cfg['dataset'] = dataset_builder.build_module(**dataset_cfg)
+
+    dataloader = DataLoader(
+        **cfg
+    )
+    return dataloader

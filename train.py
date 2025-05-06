@@ -1,31 +1,44 @@
 from imports import *
 
+required_config_keys = [
+    'train_dataloader',
+    'model',
+    'optimizer',
+    'lr_scheduler',]
+
+
 def load_config(filepath):
     config_dict = {}
     with open(filepath, 'r') as f:
         code = f.read()
     exec(code, {}, config_dict)
+    # Check if all required keys are present in the config
+    for key in required_config_keys:
+        if key not in config_dict:
+            raise ValueError(f"Missing required config key: {key}")
     return config_dict
 
 
-def main(dataset_cfg: dict, 
-         model_cfg: dict | list[dict],
-         eval_cfg: dict,
-         train_cfg,
-         optim_cfg,):
-    
-    dataset = dataset_builder.build_module(**dataset_cfg)
 
-    if isinstance(model_cfg, dict):
-        model = model_builder.build_module(**model_cfg)
-    elif isinstance(model_cfg, list):
+
+def main(config):
+
+
+    if isinstance(config['model'], dict):
+        model = model_builder.build_module(**config['model'])
+    elif isinstance(config['model'], list):
         model = nn.Sequential([
             model_builder.build_module(**cfg)
-            for cfg in model_cfg
+            for cfg in config['model']
         ])
     else:
         raise TypeError('Model config must either be a dict or a list of dicts')
     
+    train_dataloader = data.build_dataloader_from_cfg(config['train_dataloader'])
+    
+    optimizer = utils.build_optimizer(model, config['optimizer'])
+
+
 
 
 

@@ -15,7 +15,7 @@ eval_cfg = dict(
     type='EntropyLoss',
 )
 
-transforms = [
+train_pipeline = [
         dict(type='ToTensor'),
         dict(type='Augment1', param1=0.5, param2=0.5),
         dict(type='Augment2', param1=0.5, param2=0.5),
@@ -23,22 +23,27 @@ transforms = [
     ]
 
 
+ccpd_dataset_train = dict(
+    type=dataset_type,
+    data_root=data_root,
+    ann_file='train.txt',
+    pipeline=train_pipeline,
+    test_mode=False,
+)
 
-train_dataloader = dict(
+dataset_train = dict(
     type='RepeatDataset',
     times=1, # repeat times
-    batch_size = 32, # batch size for each GPU
+    dataset=ccpd_dataset_train,
+)
+
+train_dataloader = dict(
+    batch_size=32, # batch size for each GPU
     num_workers=4, # number of workers for data loading
     persistent_workers=True, # keep workers alive
     shuffle=True, # shuffle the dataset
     drop_last=True, # drop last, incomplete batch
-    dataset=dict(
-        type=dataset_type,
-        data_root=data_root,
-        ann_file='train.txt',
-        pipeline=transforms,
-        test_mode=False,
-    )
+    dataset=dataset_train,
 )
 
 eval_pipeline = dict(
@@ -47,21 +52,22 @@ eval_pipeline = dict(
         dict(type='PackInputs')
     ]
 )
+
+dataset_test = dict(
+    type=dataset_type,
+    data_root=data_root,
+    ann_file='test.txt',
+    pipeline=eval_pipeline,
+    test_mode=True,
+)
+
 eval_dataloader = dict(
-    type='RepeatDataset',
-    times=1, # repeat times
-    batch_size = 32, # batch size for each GPU
+    batch_size=32, # batch size for each GPU
     num_workers=4, # number of workers for data loading
     persistent_workers=True, # keep workers alive
-    shuffle=True, # shuffle the dataset
-    drop_last=True, # drop last, incomplete batch
-    dataset=dict(
-        type=dataset_type,
-        data_root=data_root,
-        ann_file='eval.txt',
-        pipeline=eval_pipeline,
-        test_mode=False,
-    )
+    shuffle=False, # shuffle the dataset
+    drop_last=False, # drop last, incomplete batch
+    dataset=dataset_test,
 )
 
 
