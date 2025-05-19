@@ -11,17 +11,27 @@ class YOLOv5(nn.Module):
         from ultralytics import YOLO
         self.yolo = YOLO(model_path)
         self.device = device
-        self.yolo.model.to(device)
+        self.yolo.to(device)
 
     def forward(self, x, targets=None):
+        # If targets is not None, we are in training mode
         if self.training and targets is not None:
-            return self.yolo.model(x, targets)  # loss
+            loss = self.yolo(x, mode='train', batch=targets) # Compute loss
+            # Switch to no_grad for prediction output
+            self.eval() # Switch to eval mode
+            with torch.no_grad():
+                preds = self.yolo(x)
+            self.train() # Switch back to train mode
+            return {'loss': loss, 'preds': preds}
         else:
-            return self.yolo(x)  # predictions
+            return {'preds': self.yolo(x)}
 
     def loss(self, x, targets):
-        return self.forward(x, targets)
-    
+        self.train()
+        out = self.forward(x, targets)
+
+        return out
+
     def predict(self, x):
         self.eval()
         with torch.no_grad():
